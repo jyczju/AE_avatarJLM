@@ -1,0 +1,16 @@
+/.vscode
+/data/BioMotionLab_NTroje/
+/data/CMU/
+/data/data_split/
+/data/MPI_HDM05/
+/data/real_captured_data/
+/data/protocol_1/
+/data/__pycache__/
+/models/__pycache__/
+/results/
+/support_data/
+/__pycache__/
+/checkpoint/
+/utils/__pycache__/
+.env
+*.pth

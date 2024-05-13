@@ -116,10 +116,11 @@ ad_rotation = ad_input_signal[ :, :22*6].reshape(seq_len, 22, 6) # 22代表22个
 
 # 修改Dimension 3
 time_steps = np.linspace(0, 60, 60)
-amplitude = 0.65
+amplitude = 0.6
 frequency = 1/30
 
-sin_signal = amplitude * np.sin(2*np.pi*frequency * time_steps)
+# sin_signal = amplitude * np.sin(2*np.pi*frequency * time_steps)
+sin_signal = amplitude * (1 - np.cos(2*np.pi*frequency * time_steps))
 # sin_signal = sin_signal.reshape(60, 1,1)
 print('sin_signal.shape:', sin_signal.shape)
 
@@ -171,7 +172,8 @@ ad_input_signal[ :, :22*6] = ad_rotation.reshape(seq_len, 22*6)
 
 data['hmd_position_global_full_gt_list'] = ad_input_signal
 
-pkl_file_path = pkl_file_path.replace('ae1_noattack', 'ae1_attack')
+pkl_file_path = pkl_file_path.replace('ae1_noattack', 'ae1_r_attack')
+# pkl_file_path = pkl_file_path.replace('ae1_v_attack', 'ae1_attack')
 print('attack_pkl_file_path:', pkl_file_path)
 
 

@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 # pkl_file_path = './data/real_captured_data/0000.pkl'
 # pkl_file_path = './data/protocol_1/CMU/test/1.pkl'
-pkl_file_path = './adversarial_example/ae1_noattack.pkl'
+pkl_file_path = './adversarial_example/ae1_r_attack.pkl'
 
 # 读取.pkl文件
 with open(pkl_file_path, 'rb') as f:
@@ -63,11 +63,13 @@ position = input_signal[:, :, 22*6*2:22*6*2+3*22].reshape(batch, seq_len, 22, 3)
 velocity_position = input_signal[:, :, 22*6*2+3*22:].reshape(batch, seq_len, 22, 3)
 
 # print('rotation:', rotation[0][1])
-print('rotation:', rotation[0][1][15]) # 1代表第1帧，15代表第15个关节(头)，6个维度
-print('rotation:', rotation[0][1][20]) # 1代表第1帧，20代表第20个关节(左手)，6个维度
-print('rotation:', rotation[0][1][21]) # 1代表第1帧，21代表第21个关节(右手)，6个维度
+# print('rotation:', rotation[0][1][15]) # 1代表第1帧，15代表第15个关节(头)，6个维度
+# print('rotation:', rotation[0][1][20]) # 1代表第1帧，20代表第20个关节(左手)，6个维度
+# print('rotation:', rotation[0][1][21]) # 1代表第1帧，21代表第21个关节(右手)，6个维度
 
-# print('velocity_rotation:', velocity_rotation[0][1][15]) # 1代表第1帧，15代表第15个关节(头)，6个维度
+print('velocity_rotation:', velocity_rotation[0][1][15]) # 1代表第1帧，15代表第15个关节(头)，6个维度
+print('velocity_rotation:', velocity_rotation[0][1][20]) # 1代表第1帧，20代表第20个关节(左手)，6个维度
+print('velocity_rotation:', velocity_rotation[0][1][21]) # 1代表第1帧，21代表第21个关节(右手)，6个维度
 
 
 
@@ -75,12 +77,12 @@ print('rotation:', rotation[0][1][21]) # 1代表第1帧，21代表第21个关节
 # --------------------------------------------------------
 # 画图
 
-rotation_right_hand = rotation[0, :, 21]  # Select rotation for right hand
+velocity_rotation_right_hand = velocity_rotation[0, :, 21]  # Select rotation for right hand
 
 # print('rotation_right_hand:', rotation_right_hand)
 
 # Reshape rotation_right_hand to have shape (batch * seq_len, 6)
-rotation_right_hand = rotation_right_hand.reshape(-1, 6)
+velocity_rotation_right_hand = velocity_rotation_right_hand.reshape(-1, 6)
 # print('rotation_right_hand:', rotation_right_hand)
 
 # Create time steps for x-axis
@@ -91,14 +93,14 @@ time_steps = np.linspace(0,seq_len/fps, seq_len)
 plt.figure(0)
 # for i in range(3,6):
 for i in range(3):
-    plt.plot(time_steps, rotation_right_hand[:, i], label=f'Dimension {i+1}')
+    plt.plot(time_steps, velocity_rotation_right_hand[:, i], label=f'Dimension {i+1}')
 
 plt.xlabel('Time')
-plt.ylabel('Rotation')
-plt.title('Rotation of Right Hand')
+plt.ylabel('velocity_Rotation')
+plt.title('velocity_Rotation of Right Hand')
 plt.legend()
 # plt.show()
-plt.savefig('./rotation_right_hand.png')
+plt.savefig('./velocity_rotation_right_hand.png')
 
 # --------------------------------------------------------
 
@@ -111,12 +113,12 @@ ad_input_signal = copy.deepcopy(data_orig)
 
 # print('ad_input_signal.shape:', ad_input_signal.shape)
 
-ad_rotation = ad_input_signal[ :, :22*6].reshape(seq_len, 22, 6) # 22代表22个关节，其中只有三个关节有数据，分别代表头和两只手，6代表6个维度
+ad_velocity_rotation = ad_input_signal[ :,22*6:22*6*2].reshape(seq_len, 22, 6) # 22代表22个关节，其中只有三个关节有数据，分别代表头和两只手，6代表6个维度
 
 
 # 修改Dimension 3
 time_steps = np.linspace(0, 60, 60)
-amplitude = 0.65
+amplitude = 0.6
 frequency = 1/30
 
 sin_signal = amplitude * np.sin(2*np.pi*frequency * time_steps)
@@ -125,8 +127,8 @@ print('sin_signal.shape:', sin_signal.shape)
 
 # ad_rotation[132:192][21][3] = ad_rotation[132:192][21][3] + sin_signal
 for i in range(132, 192):
-    ad_rotation[i][21][1] = ad_rotation[i][21][1] + sin_signal[i-132]
-    ad_rotation[i][21][2] = ad_rotation[i][21][2] + sin_signal[i-132]
+    ad_velocity_rotation[i][21][1] = ad_velocity_rotation[i][21][1] + sin_signal[i-132]
+    ad_velocity_rotation[i][21][2] = ad_velocity_rotation[i][21][2] + sin_signal[i-132]
 
 
 
@@ -137,11 +139,11 @@ for i in range(132, 192):
 # 绘制ad_rotation[:][21][3]
 print('add ad_rotation')
 
-rotation_right_hand = ad_rotation[:, 21]  # Select rotation for right hand
+velocity_rotation_right_hand = ad_velocity_rotation[:, 21]  # Select rotation for right hand
 
 
 # Reshape rotation_right_hand to have shape (batch * seq_len, 6)
-rotation_right_hand = rotation_right_hand.reshape(-1, 6)
+velocity_rotation_right_hand = velocity_rotation_right_hand.reshape(-1, 6)
 
 # Create time steps for x-axis
 fps = 60.0
@@ -151,14 +153,14 @@ time_steps = np.linspace(0,seq_len/fps, seq_len)
 plt.figure(1)
 # for i in range(3,6):
 for i in range(3):
-    plt.plot(time_steps, rotation_right_hand[:, i], label=f'Dimension {i+1}')
+    plt.plot(time_steps, velocity_rotation_right_hand[:, i], label=f'Dimension {i+1}')
 
 plt.xlabel('Time')
 plt.ylabel('Rotation')
 plt.title('[AE] Rotation of Right Hand')
 plt.legend()
 # plt.show()
-plt.savefig('./ad_rotation_right_hand.png')
+plt.savefig('./ad_velocity_rotation_right_hand.png')
 
 
 
@@ -166,12 +168,12 @@ plt.savefig('./ad_rotation_right_hand.png')
 
 
 
-ad_input_signal[ :, :22*6] = ad_rotation.reshape(seq_len, 22*6)
+ad_input_signal[ :, 22*6:22*6*2] = ad_velocity_rotation.reshape(seq_len, 22*6)
 
 
 data['hmd_position_global_full_gt_list'] = ad_input_signal
 
-pkl_file_path = pkl_file_path.replace('ae1_noattack', 'ae1_attack')
+pkl_file_path = pkl_file_path.replace('ae1_r_attack', 'ae1_attack')
 print('attack_pkl_file_path:', pkl_file_path)
 
 
