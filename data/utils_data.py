@@ -5,7 +5,7 @@ import glob
 import pickle
 
 import sys
-# sys.path.append('~/Documents/jiangyc/avatarJLM/AvatarJLM/')
+# sys.path.append('~/Documents/{username}/avatarJLM/AvatarJLM/')
 sys.path.insert(0, sys.path[0]+"/../")
 
 from utils import utils_transform
